@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:paystack_pay/lib/widgets/custom_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaystackWebView extends StatefulWidget {
   const PaystackWebView({
     super.key,
-    required this.publicKey,          // pk_test_...
+    required this.publicKey, // pk_test_...
     required this.amountSmallestUnit, // kobo for NGN
-    required this.currency,           // 'NGN'
+    required this.currency, // 'NGN'
     required this.email,
     required this.reference,
-    this.title = 'Pay with Paystack',
+    this.title = 'Paystack',
   });
 
   final String publicKey;
@@ -49,7 +50,7 @@ class _PaystackWebViewState extends State<PaystackWebView> {
   </style>
 </head>
 <body>
-  <h3>Pay ${currency == 'NGN' ? '₦' : ''}${(amount/100).toStringAsFixed(0)}</h3>
+  <h3>Pay ${currency == 'NGN' ? '₦' : ''}${(amount / 100).toStringAsFixed(0)}</h3>
   <p>$email</p>
   <button id="pay">Pay with Paystack</button>
 
@@ -84,33 +85,47 @@ class _PaystackWebViewState extends State<PaystackWebView> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('FlutterChannel', onMessageReceived: (m) {
-        try {
-          final data = jsonDecode(m.message) as Map<String, dynamic>;
-          if (data['event'] == 'success') {
-            Navigator.pop(context, {'status': 'success', 'reference': data['reference']});
-          } else if (data['event'] == 'closed') {
-            Navigator.pop(context, {'status': 'cancelled'});
+      ..addJavaScriptChannel(
+        'FlutterChannel',
+        onMessageReceived: (m) {
+          try {
+            final data = jsonDecode(m.message) as Map<String, dynamic>;
+            if (data['event'] == 'success') {
+              Navigator.pop(context, {
+                'status': 'success',
+                'reference': data['reference'],
+              });
+            } else if (data['event'] == 'closed') {
+              Navigator.pop(context, {'status': 'cancelled'});
+            }
+          } catch (e) {
+            Navigator.pop(context, {'status': 'error', 'error': e.toString()});
           }
-        } catch (e) {
-          Navigator.pop(context, {'status': 'error', 'error': e.toString()});
-        }
-      })
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (_) => setState(() => _loading = true),
-        onPageFinished: (_) => setState(() => _loading = false),
-      ))
+        },
+      )
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (_) => setState(() => _loading = true),
+          onPageFinished: (_) => setState(() => _loading = false),
+        ),
+      )
       ..loadHtmlString(_html());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: Stack(
+      body: Column(
         children: [
-          WebViewWidget(controller: _controller),
-          if (_loading) const LinearProgressIndicator(minHeight: 2),
+          CustomAppBar(title: widget.title),
+          Expanded(
+            child: Stack(
+              children: [
+                WebViewWidget(controller: _controller),
+                if (_loading) const LinearProgressIndicator(minHeight: 2),
+              ],
+            ),
+          ),
         ],
       ),
     );
