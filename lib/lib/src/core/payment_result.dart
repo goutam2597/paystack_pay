@@ -5,15 +5,14 @@ abstract class PaymentResult {
 }
 
 class PaymentSuccess extends PaymentResult {
-  const PaymentSuccess(String gatewayName, {this.data}) : super(gatewayName);
+  const PaymentSuccess(super.gatewayName, {this.data});
   final Map<String, dynamic>? data;
   @override
   bool get isSuccess => true;
 }
 
 class PaymentFailure extends PaymentResult {
-  const PaymentFailure(String gatewayName, this.message, {this.cause})
-      : super(gatewayName);
+  const PaymentFailure(super.gatewayName, this.message, {this.cause});
   final String message;
   final Object? cause;
   @override
