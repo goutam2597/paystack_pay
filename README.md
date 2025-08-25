@@ -28,7 +28,7 @@ Add the dependency in `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  paystack_africa: ^1.0.0
+  paystack_africa: ^2.0.0
 ```
 
 Then run:
