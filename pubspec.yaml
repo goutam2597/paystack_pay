@@ -1,4 +1,4 @@
-name: paystack_pay
+name: paystack_africa
 description: >
   Flutter helper to create Paystack payment sessions, open an in-app WebView checkout,
   and return success/failure results with typed responses.
