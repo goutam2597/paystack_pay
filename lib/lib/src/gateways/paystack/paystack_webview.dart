@@ -3,22 +3,71 @@ import 'package:flutter/material.dart';
 import 'package:paystack_africa/lib/widgets/custom_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+/// A full-screen widget that opens a [WebView] to handle Paystack checkout.
+///
+/// This widget loads a small HTML page that invokes the Paystack inline
+/// JavaScript SDK. Once the user completes or cancels payment, the result is
+/// sent back to Flutter over a JavaScript channel, and this page will
+/// [Navigator.pop] with a result map.
+///
+/// ### Example
+///
+/// ```dart
+/// final result = await Navigator.push(
+///   context,
+///   MaterialPageRoute(
+///     builder: (_) => PaystackWebView(
+///       publicKey: 'pk_test_12345',
+///       amountSmallestUnit: 150000, // ₦1,500 in kobo
+///       currency: 'NGN',
+///       email: 'customer@example.com',
+///       reference: 'order-123',
+///     ),
+///   ),
+/// );
+///
+/// if (result['status'] == 'success') {
+///   debugPrint('Payment ref: ${result['reference']}');
+/// } else if (result['status'] == 'cancelled') {
+///   debugPrint('User closed the checkout.');
+/// }
+/// ```
 class PaystackWebView extends StatefulWidget {
+  /// Creates a new Paystack checkout view.
+  ///
+  /// - [publicKey] should be your Paystack **public** key (`pk_test_...` or `pk_live_...`).
+  /// - [amountSmallestUnit] is the amount in the **smallest unit** of the currency
+  ///   (for NGN, kobo; so ₦1,500 = `150000`).
+  /// - [currency] is the three-letter ISO code (e.g. `"NGN"`, `"USD"`).
+  /// - [email] is the payer’s email.
+  /// - [reference] is your unique transaction reference.
+  /// - [title] sets the text in the custom app bar.
   const PaystackWebView({
     super.key,
-    required this.publicKey, // pk_test_...
-    required this.amountSmallestUnit, // kobo for NGN
-    required this.currency, // 'NGN'
+    required this.publicKey,
+    required this.amountSmallestUnit,
+    required this.currency,
     required this.email,
     required this.reference,
     this.title = 'Paystack',
   });
 
+  /// Paystack **public key** (`pk_test_...`).
   final String publicKey;
+
+  /// Amount to charge in the smallest unit (e.g., kobo).
   final int amountSmallestUnit;
+
+  /// ISO currency code for the charge (e.g., `"NGN"`, `"USD"`).
   final String currency;
+
+  /// Customer email to associate with the charge.
   final String email;
+
+  /// Unique reference string for this transaction.
   final String reference;
+
+  /// Title displayed in the [CustomAppBar].
   final String title;
 
   @override
@@ -29,6 +78,9 @@ class _PaystackWebViewState extends State<PaystackWebView> {
   late final WebViewController _controller;
   bool _loading = true;
 
+  /// Builds the HTML document that includes the Paystack inline JS checkout.
+  ///
+  /// This HTML is loaded directly into the WebView using [WebViewController.loadHtmlString].
   String _html() {
     final amount = widget.amountSmallestUnit;
     final currency = widget.currency;
@@ -112,6 +164,9 @@ class _PaystackWebViewState extends State<PaystackWebView> {
       ..loadHtmlString(_html());
   }
 
+  /// Renders the scaffold with [CustomAppBar] and the embedded [WebViewWidget].
+  ///
+  /// Displays a [LinearProgressIndicator] while the page is loading.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
