@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:paystack_pay/lib/widgets/custom_app_bar.dart';
+import 'package:paystack_africa/lib/widgets/custom_app_bar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaystackWebView extends StatefulWidget {

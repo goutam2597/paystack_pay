@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:paystack_pay/paystack_pay.dart';
+import 'package:paystack_africa/lib/src/core/payment_result.dart';
+import 'package:paystack_africa/lib/src/gateways/paystack/paystack_gateway.dart';
 
 void main() => runApp(const MyApp());
 
